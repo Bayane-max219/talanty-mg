@@ -1,0 +1,79 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: talanty-postgres
+    environment:
+      POSTGRES_DB: talanty_db
+      POSTGRES_USER: talanty_user
+      POSTGRES_PASSWORD: talanty_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U talanty_user -d talanty_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - talanty-net
+
+  backend-api:
+    build:
+      context: ./backend-api
+      dockerfile: Dockerfile
+    container_name: talanty-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/talanty_db
+      SPRING_DATASOURCE_USERNAME: talanty_user
+      SPRING_DATASOURCE_PASSWORD: talanty_pass
+      JWT_SECRET: talantyMGsecretKey2024SuperSecure@Madagascar!
+      JWT_EXPIRATION: 86400000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - talanty-net
+
+  middleware-api:
+    build:
+      context: ./middleware-api
+      dockerfile: Dockerfile
+    container_name: talanty-middleware
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      SPRING_API_URL: http://backend-api:8080
+      JWT_SECRET: middlewareTalantyMG2024Secret!
+      JWT_EXPIRATION: 86400
+      NODE_ENV: production
+    depends_on:
+      - backend-api
+    networks:
+      - talanty-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: talanty-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    depends_on:
+      - middleware-api
+    networks:
+      - talanty-net
+
+volumes:
+  postgres_data:
+
+networks:
+  talanty-net:
+    driver: bridge
