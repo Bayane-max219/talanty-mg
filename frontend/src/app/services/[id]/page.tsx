@@ -18,6 +18,7 @@ export default function ServiceDetailPage() {
   const [note, setNote] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState('');
+  const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
     api.get(`/api/services/${id}`)
@@ -74,8 +75,13 @@ export default function ServiceDetailPage() {
 
             {/* Image */}
             <div className="rounded-2xl overflow-hidden bg-dark-700 aspect-video relative">
-              {service.imageUrl ? (
-                <img src={service.imageUrl} alt={service.title} className="w-full h-full object-cover" />
+              {service.imageUrl && !imgError ? (
+                <img
+                  src={service.imageUrl}
+                  alt={service.title}
+                  className="w-full h-full object-cover"
+                  onError={() => setImgError(true)}
+                />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <span className="text-6xl">{category?.icon || '🔧'}</span>
@@ -182,7 +188,9 @@ export default function ServiceDetailPage() {
                 <div className="flex justify-between">
                   <span>Publié le</span>
                   <span className="text-white/70">
-                    {new Date(service.createdAt).toLocaleDateString('fr-FR')}
+                    {service.createdAt
+                      ? new Date(service.createdAt).toLocaleDateString('fr-FR')
+                      : 'Récemment'}
                   </span>
                 </div>
               </div>

@@ -1,6 +1,7 @@
+'use client';
+import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { FiStar, FiClock, FiUser } from 'react-icons/fi';
+import { FiStar, FiClock } from 'react-icons/fi';
 import type { ServiceOffer } from '@/lib/api';
 import { CATEGORIES } from '@/lib/api';
 
@@ -10,13 +11,19 @@ interface Props {
 
 export default function ServiceCard({ service }: Props) {
   const category = CATEGORIES.find(c => c.value === service.category);
+  const [imgError, setImgError] = useState(false);
 
   return (
     <Link href={`/services/${service.id}`} className="card block overflow-hidden group">
       {/* Image */}
       <div className="relative h-44 bg-gradient-to-br from-primary-800/50 to-dark-700 overflow-hidden">
-        {service.imageUrl ? (
-          <Image src={service.imageUrl} alt={service.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+        {service.imageUrl && !imgError ? (
+          <img
+            src={service.imageUrl}
+            alt={service.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            onError={() => setImgError(true)}
+          />
         ) : (
           <div className="flex items-center justify-center h-full text-5xl opacity-40">
             {category?.icon || '🔧'}

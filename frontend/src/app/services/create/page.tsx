@@ -20,6 +20,23 @@ export default function CreateServicePage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [imagePreview, setImagePreview] = useState('');
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      setError('Image trop grande (max 2MB)');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result as string;
+      setImagePreview(base64);
+      setForm(f => ({ ...f, imageUrl: base64 }));
+    };
+    reader.readAsDataURL(file);
+  };
 
   useEffect(() => {
     if (!user) { router.push('/auth/login'); return; }
@@ -178,26 +195,47 @@ export default function CreateServicePage() {
             <h2 className="text-lg font-semibold text-white border-b border-white/5 pb-3">
               Image (optionnel)
             </h2>
+
+            {/* Upload depuis PC */}
             <div>
-              <label className="block text-sm font-medium text-white/70 mb-2">URL de l&apos;image</label>
-              <input
-                type="url"
-                value={form.imageUrl}
-                onChange={e => setForm(f => ({ ...f, imageUrl: e.target.value }))}
-                placeholder="https://images.unsplash.com/..."
-                className="input-field"
-              />
-              <p className="text-white/30 text-xs mt-1">Laissez vide pour utiliser l&apos;icône de la catégorie</p>
-            </div>
-            {form.imageUrl && (
-              <div className="rounded-xl overflow-hidden aspect-video bg-dark-700">
-                <img
-                  src={form.imageUrl}
-                  alt="Aperçu"
-                  className="w-full h-full object-cover"
-                  onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+              <label className="block text-sm font-medium text-white/70 mb-2">
+                Uploader une image depuis votre PC
+              </label>
+              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/10 rounded-xl cursor-pointer hover:border-primary-500/50 hover:bg-primary-500/5 transition-all">
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <span className="text-3xl mb-2">📁</span>
+                  <p className="text-sm text-white/50">
+                    <span className="text-primary-400 font-semibold">Cliquez pour choisir</span> une image
+                  </p>
+                  <p className="text-xs text-white/30 mt-1">PNG, JPG, JPEG — max 2MB</p>
+                </div>
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  onChange={handleImageUpload}
+                  className="hidden"
                 />
+              </label>
+            </div>
+
+            {/* Aperçu image uploadée */}
+            {imagePreview && (
+              <div className="relative">
+                <div className="rounded-xl overflow-hidden aspect-video bg-dark-700">
+                  <img src={imagePreview} alt="Aperçu" className="w-full h-full object-cover" />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setImagePreview(''); setForm(f => ({ ...f, imageUrl: '' })); }}
+                  className="absolute top-2 right-2 w-8 h-8 bg-red-500/80 hover:bg-red-500 rounded-full flex items-center justify-center text-white text-sm transition-colors"
+                >
+                  ✕
+                </button>
               </div>
+            )}
+
+            {!imagePreview && (
+              <p className="text-white/30 text-xs">Sans image, l&apos;icône de la catégorie sera utilisée</p>
             )}
           </div>
 
