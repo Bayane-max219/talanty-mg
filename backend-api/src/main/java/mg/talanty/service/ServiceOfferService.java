@@ -41,6 +41,9 @@ public class ServiceOfferService {
         User provider = userRepo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Provider non trouvé"));
         offer.setProvider(provider);
+        offer.setIsActive(true);
+        offer.setAverageRating(0.0);
+        offer.setTotalReviews(0);
         return serviceRepo.save(offer);
     }
 
