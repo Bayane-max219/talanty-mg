@@ -34,6 +34,7 @@ public class ServiceOffer {
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal price;
 
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
 
     private Integer deliveryDays;
