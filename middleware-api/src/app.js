@@ -33,13 +33,13 @@ app.use(globalLimiter);
 
 // Rate limiting strict pour l'auth
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
+  windowMs: parseInt(process.env.RATE_LIMIT_AUTH_WINDOW_MS) || 15 * 60 * 1000,
+  max: parseInt(process.env.RATE_LIMIT_AUTH_MAX) || 50,
   message: { error: 'Trop de tentatives de connexion. Réessayez dans 15 minutes.' },
 });
 
 // ── Middleware ────────────────────────────────────────────────────────────────
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('combined', { stream: { write: msg => logger.info(msg.trim()) } }));
 
