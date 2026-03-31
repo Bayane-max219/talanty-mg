@@ -25,17 +25,25 @@ export default function CreateServicePage() {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      setError('Image trop grande (max 2MB)');
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result as string;
-      setImagePreview(base64);
-      setForm(f => ({ ...f, imageUrl: base64 }));
+    setError('');
+    const img = new window.Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      // Redimensionner à max 400x300 et compresser
+      const canvas = document.createElement('canvas');
+      const MAX_W = 400, MAX_H = 300;
+      let w = img.width, h = img.height;
+      if (w > MAX_W) { h = Math.round(h * MAX_W / w); w = MAX_W; }
+      if (h > MAX_H) { w = Math.round(w * MAX_H / h); h = MAX_H; }
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext('2d')!.drawImage(img, 0, 0, w, h);
+      const compressed = canvas.toDataURL('image/jpeg', 0.7);
+      URL.revokeObjectURL(objectUrl);
+      setImagePreview(compressed);
+      setForm(f => ({ ...f, imageUrl: compressed }));
     };
-    reader.readAsDataURL(file);
+    img.src = objectUrl;
   };
 
   useEffect(() => {
