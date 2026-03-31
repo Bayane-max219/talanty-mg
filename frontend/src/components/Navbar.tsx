@@ -52,6 +52,14 @@ export default function Navbar() {
                   <FiUser size={16} />
                   Dashboard
                 </Link>
+                <Link href="/profile" className="text-white/70 hover:text-white transition-colors font-medium">
+                  Profil
+                </Link>
+                {user.role === 'ADMIN' && (
+                  <Link href="/admin" className="text-red-400 hover:text-red-300 transition-colors font-medium text-sm">
+                    Admin
+                  </Link>
+                )}
                 <button onClick={handleLogout} className="btn-secondary flex items-center gap-2 text-sm">
                   <FiLogOut size={16} />
                   Déconnexion
@@ -82,6 +90,10 @@ export default function Navbar() {
             {user ? (
               <>
                 <Link href="/dashboard" className="text-white/80 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5" onClick={() => setMenuOpen(false)}>Dashboard</Link>
+                <Link href="/profile" className="text-white/80 hover:text-white py-2 px-3 rounded-lg hover:bg-white/5" onClick={() => setMenuOpen(false)}>Profil</Link>
+                {user.role === 'ADMIN' && (
+                  <Link href="/admin" className="text-red-400 py-2 px-3 rounded-lg hover:bg-red-500/10" onClick={() => setMenuOpen(false)}>Admin</Link>
+                )}
                 <button onClick={handleLogout} className="text-left text-red-400 py-2 px-3 rounded-lg hover:bg-red-500/10">Déconnexion</button>
               </>
             ) : (
