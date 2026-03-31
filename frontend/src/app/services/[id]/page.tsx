@@ -36,7 +36,7 @@ export default function ServiceDetailPage() {
       setBooked(true);
       setShowModal(false);
     } catch (err: unknown) {
-      const e = err as { response?: { data?: { message?: string } } };
+      const e = err as { response?: { data?: { message?: string; error?: string } } };
       setError(e.response?.data?.error || e.response?.data?.message || 'Erreur lors de la réservation');
     } finally {
       setBooking(false);
