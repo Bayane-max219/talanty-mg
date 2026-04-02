@@ -54,6 +54,7 @@ services:
       NODE_ENV: production
       RATE_LIMIT_AUTH_MAX: 100
       RATE_LIMIT_MAX: 500
+      RATE_LIMIT_WINDOW_MS: 60000
     depends_on:
       - backend-api
     networks:

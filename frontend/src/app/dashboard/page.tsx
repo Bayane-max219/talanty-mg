@@ -47,6 +47,16 @@ export default function DashboardPage() {
   const recentBookings: Booking[] = dashboard?.recentClientBookings || [];
   const receivedBookings: Booking[] = dashboard?.recentReceivedBookings || [];
 
+  const updateBookingStatus = async (bookingId: number, status: string) => {
+    try {
+      await api.put(`/api/bookings/${bookingId}/status`, { status });
+      toast.success(status === 'CONFIRMED' ? 'Réservation confirmée !' : status === 'COMPLETED' ? 'Marqué comme terminé !' : 'Annulé');
+      loadDashboard();
+    } catch {
+      toast.error('Erreur lors de la mise à jour');
+    }
+  };
+
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -135,15 +145,47 @@ export default function DashboardPage() {
                             day: 'numeric', month: 'long', year: 'numeric'
                           })}
                         </p>
+                        {activeTab === 'received' && booking.client && (
+                          <p className="text-sm text-white/60 mt-1">Client : <span className="text-white">{booking.client.fullName}</span></p>
+                        )}
                         {booking.clientNote && (
                           <p className="text-sm text-white/40 mt-2 italic">"{booking.clientNote}"</p>
                         )}
                       </div>
-                      <div className="flex items-center gap-4">
+                      <div className="flex flex-wrap items-center gap-3">
                         <span className={`badge ${statusCfg?.color}`}>{statusCfg?.label}</span>
                         <span className="text-gold-400 font-bold">
                           {new Intl.NumberFormat('fr-MG').format(booking.service?.price)} MGA
                         </span>
+                        {/* Boutons d'action — côté PROVIDER onglet Reçues */}
+                        {activeTab === 'received' && (
+                          <div className="flex gap-2">
+                            {booking.status === 'PENDING' && (
+                              <>
+                                <button
+                                  onClick={() => updateBookingStatus(booking.id, 'CONFIRMED')}
+                                  className="px-3 py-1.5 text-xs font-semibold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-500/30 transition-colors"
+                                >
+                                  Confirmer
+                                </button>
+                                <button
+                                  onClick={() => updateBookingStatus(booking.id, 'CANCELLED')}
+                                  className="px-3 py-1.5 text-xs font-semibold bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition-colors"
+                                >
+                                  Refuser
+                                </button>
+                              </>
+                            )}
+                            {booking.status === 'CONFIRMED' && (
+                              <button
+                                onClick={() => updateBookingStatus(booking.id, 'COMPLETED')}
+                                className="px-3 py-1.5 text-xs font-semibold bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg hover:bg-green-500/30 transition-colors"
+                              >
+                                Terminer
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
