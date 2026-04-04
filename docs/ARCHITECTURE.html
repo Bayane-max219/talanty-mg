@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TalantyMG — Documentation Architecture & Code</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #1a1a2e;
+      background: #fff;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 30px 40px;
+    }
+    @media print {
+      body { padding: 10px 20px; font-size: 11px; }
+      .no-break { page-break-inside: avoid; }
+      h1 { page-break-before: avoid; }
+      h2 { page-break-after: avoid; }
+    }
+
+    /* ─── Titres ─────────────────────────────────────────── */
+    h1 {
+      font-size: 24px;
+      color: #0f3460;
+      border-bottom: 3px solid #e94560;
+      padding-bottom: 10px;
+      margin-bottom: 6px;
+    }
+    .subtitle { color: #555; font-size: 13px; margin-bottom: 30px; }
+    h2 {
+      font-size: 17px;
+      color: #0f3460;
+      background: #f0f4ff;
+      border-left: 4px solid #e94560;
+      padding: 8px 14px;
+      margin: 28px 0 12px;
+      border-radius: 0 6px 6px 0;
+    }
+    h3 {
+      font-size: 14px;
+      color: #0f3460;
+      margin: 18px 0 6px;
+      font-weight: 700;
+    }
+    h4 {
+      font-size: 13px;
+      color: #e94560;
+      margin: 14px 0 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ─── Texte ──────────────────────────────────────────── */
+    p { margin-bottom: 8px; }
+    ul, ol { padding-left: 20px; margin-bottom: 10px; }
+    li { margin-bottom: 4px; }
+    strong { color: #0f3460; }
+    em { color: #555; }
+
+    /* ─── Tableaux ───────────────────────────────────────── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 16px;
+      font-size: 12px;
+    }
+    th {
+      background: #0f3460;
+      color: #fff;
+      padding: 7px 10px;
+      text-align: left;
+    }
+    td { padding: 6px 10px; border-bottom: 1px solid #e8ecf0; }
+    tr:nth-child(even) { background: #f8faff; }
+
+    /* ─── Code ───────────────────────────────────────────── */
+    pre {
+      background: #1a1a2e;
+      color: #e2e8f0;
+      padding: 14px 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-size: 11.5px;
+      line-height: 1.5;
+    }
+    code {
+      font-family: 'Consolas', 'Courier New', monospace;
+    }
+    .inline-code {
+      background: #eef2ff;
+      color: #3730a3;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 11.5px;
+      font-family: 'Consolas', monospace;
+    }
+
+    /* ─── Badges ─────────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      margin: 2px;
+    }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-orange { background: #ffedd5; color: #9a3412; }
+    .badge-purple { background: #f3e8ff; color: #6b21a8; }
+
+    /* ─── Boîtes ─────────────────────────────────────────── */
+    .box {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 10px 0;
+      background: #fafbff;
+    }
+    .box-important {
+      border-left: 4px solid #e94560;
+      background: #fff5f5;
+      padding: 10px 14px;
+      margin: 10px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .box-tip {
+      border-left: 4px solid #22c55e;
+      background: #f0fff4;
+      padding: 10px 14px;
+      margin: 10px 0;
+      border-radius: 0 8px 8px 0;
+    }
+
+    /* ─── Schéma architecture ────────────────────────────── */
+    .arch-diagram {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+      margin: 16px 0;
+    }
+    .arch-layer {
+      width: 85%;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 600;
+    }
+    .arch-arrow { font-size: 18px; color: #888; }
+    .layer-frontend { background: #dbeafe; color: #1e3a8a; border: 2px solid #93c5fd; }
+    .layer-middleware { background: #dcfce7; color: #14532d; border: 2px solid #86efac; }
+    .layer-backend { background: #ffedd5; color: #7c2d12; border: 2px solid #fdba74; }
+    .layer-db { background: #f3e8ff; color: #4a044e; border: 2px solid #d8b4fe; }
+
+    /* ─── Commentaires dans le code ─────────────────────── */
+    .comment { color: #86efac; }
+    .keyword { color: #f472b6; }
+    .string { color: #fcd34d; }
+    .type { color: #67e8f9; }
+    .annotation { color: #a5b4fc; }
+
+    /* ─── Page de titre ──────────────────────────────────── */
+    .title-page {
+      text-align: center;
+      padding: 40px 0 30px;
+      border-bottom: 2px solid #e2e8f0;
+      margin-bottom: 30px;
+    }
+    .title-page h1 { border: none; font-size: 28px; }
+    .title-tag {
+      display: inline-block;
+      background: #0f3460;
+      color: white;
+      padding: 4px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      margin: 8px 0;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 10px 0;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  PAGE DE TITRE                                            -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="title-page">
+  <h1>TalantyMG</h1>
+  <div class="title-tag">Documentation Technique — Architecture &amp; Code</div>
+  <p style="color:#555; margin-top:10px;">Marketplace Freelance Madagascar</p>
+  <p style="color:#888; font-size:12px;">ESMIA Madagascar — Projet Agile Scrum</p>
+  <div style="margin-top:14px;">
+    <span class="badge badge-blue">Next.js 14</span>
+    <span class="badge badge-green">Node.js Express</span>
+    <span class="badge badge-orange">Spring Boot 3</span>
+    <span class="badge badge-purple">PostgreSQL 16</span>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  1. PRÉSENTATION DU PROJET                                -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<h2>1. Présentation du projet</h2>
+
+<p><strong>TalantyMG</strong> est une marketplace (place de marché) en ligne permettant à des freelances malgaches
+(appelés <em>PROVIDER</em>) de proposer leurs services, et à des clients (appelés <em>CLIENT</em>) de les réserver.</p>
+
+<h3>Fonctionnalités principales</h3>
+<div class="grid-2">
+  <div class="box">
+    <h4>Côté CLIENT</h4>
+    <ul>
+      <li>Inscription / Connexion</li>
+      <li>Parcourir les services disponibles</li>
+      <li>Voir le détail d'un service</li>
+      <li>Réserver un service (avec message)</li>
+      <li>Suivre ses réservations</li>
+    </ul>
+  </div>
+  <div class="box">
+    <h4>Côté PROVIDER (Freelance)</h4>
+    <ul>
+      <li>Inscription / Connexion</li>
+      <li>Créer et publier des services</li>
+      <li>Voir les réservations reçues</li>
+      <li>Confirmer ou refuser une réservation</li>
+      <li>Marquer une mission comme terminée</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  2. ARCHITECTURE GLOBALE                                  -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<h2>2. Architecture globale — 3 couches</h2>
+
+<div class="arch-diagram">
+  <div class="arch-layer layer-frontend">
+    🖥️ FRONTEND — Next.js 14 + TypeScript + Tailwind CSS<br/>
+    <small>Interface utilisateur — Port 3000 — http://localhost:3000</small>
+  </div>
+  <div class="arch-arrow">↕ HTTP + JWT Bearer Token</div>
+  <div class="arch-layer layer-middleware">
+    🔀 MIDDLEWARE — Node.js + Express<br/>
+    <small>Sécurité, validation, agrégation — Port 3001</small>
+  </div>
+  <div class="arch-arrow">↕ HTTP + JWT Spring Security</div>
+  <div class="arch-layer layer-backend">
+    ⚙️ BACKEND — Spring Boot 3 + JPA/Hibernate<br/>
+    <small>Logique métier, base de données — Port 8080</small>
+  </div>
+  <div class="arch-arrow">↕ JDBC / SQL</div>
+  <div class="arch-layer layer-db">
+    🗄️ BASE DE DONNÉES — PostgreSQL 16<br/>
+    <small>Stockage persistant — Port 5432</small>
+  </div>
+</div>
+
+<div class="box-important">
+  <strong>Pourquoi 3 couches ?</strong><br/>
+  Cette architecture sépare les responsabilités : le frontend gère l'affichage, le middleware gère la sécurité
+  et l'agrégation de données, le backend gère la persistance. Chaque couche peut être modifiée indépendamment.
+</div>
+
+<h3>Communication entre les couches</h3>
+<table>
+  <tr><th>De</th><th>Vers</th><th>Protocole</th><th>Sécurité</th></tr>
+  <tr><td>Frontend (3000)</td><td>Middleware (3001)</td><td>HTTP REST + JSON</td><td>JWT Token (middlewareTalantyMG)</td></tr>
+  <tr><td>Middleware (3001)</td><td>Backend (8080)</td><td>HTTP REST + JSON</td><td>JWT Token (Spring Security)</td></tr>
+  <tr><td>Backend (8080)</td><td>PostgreSQL (5432)</td><td>JDBC / SQL</td><td>User/Password + Réseau Docker interne</td></tr>
+</table>
+
+<div class="box-tip">
+  <strong>Sécurité Double JWT :</strong> Le frontend utilise un token signé par Node.js.
+  Node.js utilise un <em>autre</em> token signé par Spring Boot. Ce sont deux secrets distincts.
+  Même si quelqu'un intercepte le token frontend, il ne peut pas accéder directement à Spring Boot.
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  3. DOCKER COMPOSE                                        -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<h2>3. Docker Compose — Containerisation</h2>
+
+<p>Docker Compose permet de lancer les 4 services avec une seule commande : <span class="inline-code">docker-compose up</span>.
+Chaque service tourne dans son propre container isolé.</p>
+
+<pre><code><span class="comment"># docker-compose.yml — simplifié</span>
+<span class="keyword">services</span>:
+  <span class="type">postgres</span>:         <span class="comment"># Container 1 — Base de données</span>
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: talanty_db
+      POSTGRES_USER: talanty_user
+    ports: ["5432:5432"]
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  <span class="comment"># Données persistantes</span>
+    healthcheck:                                 <span class="comment"># Vérifie que Postgres est prêt</span>
+      test: pg_isready -U talanty_user
+
+  <span class="type">backend-api</span>:      <span class="comment"># Container 2 — Spring Boot</span>
+    build: ./backend-api
+    ports: ["8080:8080"]
+    depends_on:
+      postgres:
+        condition: service_healthy   <span class="comment"># Attend que Postgres soit prêt</span>
+
+  <span class="type">middleware-api</span>:   <span class="comment"># Container 3 — Node.js</span>
+    build: ./middleware-api
+    ports: ["3001:3001"]
+    environment:
+      SPRING_API_URL: http://backend-api:8080   <span class="comment"># URL interne Docker</span>
+      RATE_LIMIT_WINDOW_MS: 60000               <span class="comment"># Fenêtre rate limit = 1 min</span>
+
+  <span class="type">frontend</span>:         <span class="comment"># Container 4 — Next.js</span>
+    build: ./frontend
+    ports: ["3000:3000"]</code></pre>
+
+<div class="box">
+  <strong>Le réseau interne Docker</strong> (<span class="inline-code">talanty-net</span>) permet aux containers
+  de communiquer entre eux par leur nom (<span class="inline-code">backend-api</span>,
+  <span class="inline-code">postgres</span>) sans exposer ces ports à Internet.
+  Seuls les ports 3000, 3001, 8080 sont accessibles depuis votre machine.
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  4. BASE DE DONNÉES                                       -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<h2>4. Base de données — PostgreSQL</h2>
+
+<h3>Tables créées automatiquement par Spring Boot (JPA/Hibernate)</h3>
+<p>Spring Boot crée les tables automatiquement au démarrage grâce à
+<span class="inline-code">spring.jpa.hibernate.ddl-auto=update</span>.</p>
+
+<table>
+  <tr><th>Table</th><th>Description</th><th>Colonnes principales</th></tr>
+  <tr>
+    <td><strong>users</strong></td>
+    <td>Comptes utilisateurs</td>
+    <td>id, full_name, email, password (BCrypt), role (CLIENT/PROVIDER/ADMIN), created_at</td>
+  </tr>
+  <tr>
+    <td><strong>service_offers</strong></td>
+    <td>Services proposés par les freelances</td>
+    <td>id, title, description (TEXT), category, price, image_url (TEXT), delivery_days, is_active, provider_id (FK→users)</td>
+  </tr>
+  <tr>
+    <td><strong>bookings</strong></td>
+    <td>Réservations</td>
+    <td>id, client_id (FK→users), service_id (FK→service_offers), status (PENDING/CONFIRMED/COMPLETED/CANCELLED), client_note, created_at</td>
+  </tr>
+  <tr>
+    <td><strong>reviews</strong></td>
+    <td>Avis clients</td>
+    <td>id, booking_id (FK), rating, comment, created_at</td>
+  </tr>
+</table>
+
+<h3>Relations entre tables</h3>
+<pre><code>users ──(1→N)──→ service_offers   <span class="comment"># Un PROVIDER a plusieurs services</span>
+users ──(1→N)──→ bookings          <span class="comment"># Un CLIENT fait plusieurs réservations</span>
+service_offers ──(1→N)──→ bookings <span class="comment"># Un service peut être réservé plusieurs fois</span>
+bookings ──(1→1)──→ reviews        <span class="comment"># Une réservation terminée peut avoir un avis</span></code></pre>
+
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  5. BACKEND SPRING BOOT                                   -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<h2>5. Backend — Spring Boot 3</h2>
+
+<p>Spring Boot est le "cerveau" de l'application. Il contient toute la logique métier
+et gère les accès à la base de données.</p>
+
+<h3>Structure des packages Java</h3>
+<pre><code>mg/talanty/
+├── model/        <span class="comment">← Entités JPA (= tables de la BDD)</span>
+├── repository/   <span class="comment">← Accès BDD (requêtes SQL automatiques)</span>
+├── service/      <span class="comment">← Logique métier</span>
+├── controller/   <span class="comment">← Endpoints REST (reçoit/répond HTTP)</span>
+├── dto/          <span class="comment">← Objets de transfert (ce qui entre/sort de l'API)</span>
+├── security/     <span class="comment">← JWT + Spring Security</span>
+└── config/       <span class="comment">← Configuration CORS, Security</span></code></pre>
+
+<h3>5.1 Les modèles JPA (model/)</h3>
+<p>Chaque classe <span class="inline-code">@Entity</span> représente une table en base de données.
+Les annotations définissent les colonnes, les relations et les contraintes.</p>
+
+<pre><code><span class="annotation">@Entity</span>                                           <span class="comment">// → crée la table "users"</span>
+<span class="annotation">@Table</span>(name = <span class="string">"users"</span>)
+<span class="annotation">@Getter @Setter @NoArgsConstructor @Builder</span>       <span class="comment">// → Lombok génère get/set/constructeurs</span>
+<span class="annotation">@JsonIgnoreProperties</span>({<span class="string">"hibernateLazyInitializer"</span>, <span class="string">"handler"</span>}) <span class="comment">// → Fix Hibernate Proxy</span>
+<span class="keyword">public class</span> <span class="type">User</span> {
+
+    <span class="annotation">@Id @GeneratedValue</span>(strategy = GenerationType.IDENTITY)
+    <span class="keyword">private</span> Long id;                              <span class="comment">// → auto-increment PRIMARY KEY</span>
+
+    <span class="annotation">@Email @NotBlank</span>
+    <span class="annotation">@Column</span>(unique = <span class="keyword">true</span>, nullable = <span class="keyword">false</span>)
+    <span class="keyword">private</span> String email;
+
+    <span class="annotation">@Enumerated</span>(EnumType.STRING)
+    <span class="annotation">@Column</span>(nullable = <span class="keyword">false</span>)
+    <span class="keyword">private</span> Role role = Role.CLIENT;
+
+    <span class="annotation">@JsonIgnore</span>                                   <span class="comment">// → Évite la récursion infinie</span>
+    <span class="annotation">@OneToMany</span>(mappedBy = <span class="string">"provider"</span>, cascade = CascadeType.ALL,
+               fetch = FetchType.<span class="keyword">LAZY</span>)
+    <span class="keyword">private</span> List&lt;ServiceOffer&gt; services;           <span class="comment">// → Relation 1→N vers services</span>
+}</code></pre>
+
+<div class="box-important">
+  <strong>Problème Hibernate Lazy Loading résolu :</strong><br/>
+  Quand Hibernate charge un objet en <span class="inline-code">FetchType.LAZY</span>, il crée un "proxy"
+  (objet intermédiaire via ByteBuddy). Jackson ne sait pas sérialiser ce proxy en JSON.
+  La solution : <span class="inline-code">@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})</span>
+  sur chaque entité (<code>User</code>, <code>ServiceOffer</code>, <code>Booking</code>).
+</div>
+
+<div class="box-important">
+  <strong>Problème de récursion infinie résolu :</strong><br/>
+  Sans protection : <code>User</code> → <code>services</code> → <code>ServiceOffer.provider</code>
+  → <code>User</code> → … → StackOverflowError.<br/>
+  Solution : <span class="inline-code">@JsonIgnore</span> sur <code>User.services</code>
+  pour briser le cycle.
+</div>
+
+<h3>5.2 Les repositories (repository/)</h3>
+<p>Les repositories héritent de <span class="inline-code">JpaRepository</span>.
+Spring Data JPA génère automatiquement les requêtes SQL à partir des noms de méthodes.</p>
+
+<pre><code><span class="keyword">public interface</span> <span class="type">ServiceOfferRepository</span> <span class="keyword">extends</span> JpaRepository&lt;ServiceOffer, Long&gt; {
+    <span class="comment">// Spring génère automatiquement : SELECT * FROM service_offers WHERE provider_id = ?</span>
+    List&lt;ServiceOffer&gt; findByProviderId(Long providerId);
+
+    <span class="comment">// Génère : SELECT * FROM service_offers WHERE is_active = true</span>
+    List&lt;ServiceOffer&gt; findByIsActiveTrue();
+}</code></pre>
+
+<h3>5.3 Les controllers (controller/)</h3>
+<p>Les controllers reçoivent les requêtes HTTP et renvoient les réponses JSON.</p>
+
+<pre><code><span class="annotation">@RestController</span>
+<span class="annotation">@RequestMapping</span>(<span class="string">"/api/v1/services"</span>)
+<span class="keyword">public class</span> <span class="type">ServiceController</span> {
+
+    <span class="annotation">@GetMapping</span>                                    <span class="comment">// GET /api/v1/services</span>
+    <span class="keyword">public</span> List&lt;ServiceOffer&gt; getAllServices() { ... }
+
+    <span class="annotation">@PostMapping</span>                                   <span class="comment">// POST /api/v1/services</span>
+    <span class="annotation">@PreAuthorize</span>(<span class="string">"hasRole('PROVIDER')"</span>)            <span class="comment">// Sécurisé — PROVIDER seulement</span>
+    <span class="keyword">public</span> ServiceOffer createService(
+        <span class="annotation">@RequestBody</span> ServiceOffer offer,             <span class="comment">// Lit le JSON du body</span>
+        <span class="annotation">@AuthenticationPrincipal</span> UserDetails user   <span class="comment">// Récupère l'utilisateur connecté</span>
+    ) { ... }
+}</code></pre>
+
+<h3>5.4 Sécurité Spring — JWT</h3>
+<pre><code><span class="comment">// Flux d'authentification :</span>
+<span class="comment">// 1. POST /api/v1/auth/login → Spring vérifie email+password (BCrypt)</span>
+<span class="comment">// 2. Si OK → génère un JWT signé avec JWT_SECRET</span>
+<span class="comment">// 3. Requêtes suivantes → JwtAuthenticationFilter extrait et valide le token</span>
+<span class="comment">// 4. Si valide → Spring Security "connecte" l'utilisateur pour cette requête</span></code></pre>
+
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  6. MIDDLEWARE NODE.JS                                    -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<h2>6. Middleware — Node.js Express</h2>
+
+<p>Le middleware est un serveur Node.js qui fait le lien entre le frontend et Spring Boot.
+Il joue le rôle de "gardien" : toutes les requêtes passent par lui.</p>
+
+<h3>6.1 Rôles du middleware</h3>
+<div class="grid-3">
+  <div class="box">
+    <h4>🔐 Sécurité</h4>
+    <ul>
+      <li>Valide le JWT du frontend</li>
+      <li>Rate limiting (anti-spam)</li>
+      <li>Helmet (sécurité HTTP)</li>
+      <li>CORS (origines autorisées)</li>
+    </ul>
+  </div>
+  <div class="box">
+    <h4>✅ Validation</h4>
+    <ul>
+      <li>Vérifie les données entrantes</li>
+      <li>Format email, longueur password</li>
+      <li>Retourne des erreurs 400 claires</li>
+    </ul>
+  </div>
+  <div class="box">
+    <h4>📊 Agrégation</h4>
+    <ul>
+      <li>Combine plusieurs APIs</li>
+      <li>Dashboard = 3 appels parallèles</li>
+      <li>Formate les données pour le frontend</li>
+    </ul>
+  </div>
+</div>
+
+<h3>6.2 Point d'entrée — app.js</h3>
+<pre><code><span class="keyword">const</span> express = require(<span class="string">'express'</span>);
+<span class="keyword">const</span> app = express();
+
+<span class="comment">// ── Sécurité HTTP ────────────────────────────────────────────────</span>
+app.use(helmet());                    <span class="comment">// Ajoute des headers de sécurité HTTP</span>
+app.use(cors({ origin: <span class="string">'http://localhost:3000'</span> })); <span class="comment">// Autorise seulement le frontend</span>
+
+<span class="comment">// ── Rate Limiting ────────────────────────────────────────────────</span>
+<span class="keyword">const</span> globalLimiter = rateLimit({
+  windowMs: 60000,    <span class="comment">// Fenêtre de 1 minute</span>
+  max: 500,           <span class="comment">// Max 500 requêtes par minute</span>
+  message: { error: <span class="string">'Trop de requêtes'</span> }
+});
+app.use(globalLimiter);
+
+<span class="comment">// ── Routes ───────────────────────────────────────────────────────</span>
+app.use(<span class="string">'/api/auth'</span>, authLimiter, authRoutes);
+app.use(<span class="string">'/api/services'</span>, serviceRoutes);
+app.use(<span class="string">'/api/bookings'</span>, bookingRoutes);
+app.use(<span class="string">'/api/dashboard'</span>, dashboardRoutes);</code></pre>
+
+<h3>6.3 Middleware d'authentification JWT (middleware/auth.js)</h3>
+<pre><code><span class="keyword">const</span> authenticate = (req, res, next) => {
+  <span class="keyword">const</span> token = req.headers.authorization?.replace(<span class="string">'Bearer '</span>, <span class="string">''</span>);
+  <span class="keyword">if</span> (!token) <span class="keyword">return</span> res.status(401).json({ error: <span class="string">'Token manquant'</span> });
+
+  <span class="keyword">try</span> {
+    <span class="keyword">const</span> decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;    <span class="comment">// Attache l'utilisateur à la requête</span>
+    next();                <span class="comment">// Continue vers le controller</span>
+  } <span class="keyword">catch</span> {
+    res.status(401).json({ error: <span class="string">'Token invalide'</span> });
+  }
+};
+
+<span class="comment">// Vérification du rôle</span>
+<span class="keyword">const</span> requireRole = (role) => (req, res, next) => {
+  <span class="keyword">if</span> (req.user.role !== role)
+    <span class="keyword">return</span> res.status(403).json({ error: <span class="string">'Accès refusé'</span> });
+  next();
+};</code></pre>
+
+<h3>6.4 Dashboard — Agrégation de données (controllers/dashboard.controller.js)</h3>
+<pre><code><span class="keyword">const</span> getDashboard = async (req, res) => {
+  <span class="comment">// 3 appels simultanés vers Spring Boot (optimisation)</span>
+  <span class="keyword">const</span> [bookingStats, myBookings, providerBookings] = <span class="keyword">await</span> Promise.allSettled([
+    springRequest(<span class="string">'GET'</span>, <span class="string">'/api/v1/bookings/stats'</span>, null, token),
+    springRequest(<span class="string">'GET'</span>, <span class="string">'/api/v1/bookings/my'</span>, null, token),
+    user.role === <span class="string">'PROVIDER'</span>
+      ? springRequest(<span class="string">'GET'</span>, <span class="string">'/api/v1/bookings/provider'</span>, null, token)
+      : Promise.resolve([])
+  ]);
+
+  <span class="comment">// Combiner et retourner au frontend</span>
+  res.json({
+    stats: { ...stats, totalClientBookings: clientBookings.length },
+    recentClientBookings: clientBookings.slice(0, 5),
+    recentReceivedBookings: receivedBookings.slice(0, 5)
+  });
+};</code></pre>
+
+<div class="box-tip">
+  <strong>Promise.allSettled()</strong> : Lance les 3 appels en parallèle. Même si l'un échoue,
+  les autres continuent. Plus rapide qu'appels séquentiels (réduit le temps de réponse de ~66%).
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  7. FRONTEND NEXT.JS                                      -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<h2>7. Frontend — Next.js 14</h2>
+
+<p>Next.js est le framework React utilisé pour l'interface utilisateur.
+La version 14 utilise l'<strong>App Router</strong> : chaque dossier dans <span class="inline-code">src/app/</span>
+correspond à une URL.</p>
+
+<h3>7.1 Pages de l'application</h3>
+<table>
+  <tr><th>Fichier</th><th>URL</th><th>Description</th><th>Accès</th></tr>
+  <tr><td>app/page.tsx</td><td>/</td><td>Page d'accueil</td><td>Public</td></tr>
+  <tr><td>app/auth/login/page.tsx</td><td>/auth/login</td><td>Connexion</td><td>Public</td></tr>
+  <tr><td>app/auth/register/page.tsx</td><td>/auth/register</td><td>Inscription</td><td>Public</td></tr>
+  <tr><td>app/services/page.tsx</td><td>/services</td><td>Liste des services</td><td>Public</td></tr>
+  <tr><td>app/services/[id]/page.tsx</td><td>/services/42</td><td>Détail service</td><td>Public</td></tr>
+  <tr><td>app/services/create/page.tsx</td><td>/services/create</td><td>Créer service</td><td>PROVIDER</td></tr>
+  <tr><td>app/dashboard/page.tsx</td><td>/dashboard</td><td>Tableau de bord</td><td>Connecté</td></tr>
+  <tr><td>app/profile/page.tsx</td><td>/profile</td><td>Profil utilisateur</td><td>Connecté</td></tr>
+</table>
+
+<h3>7.2 Client HTTP — lib/api.ts</h3>
+<pre><code><span class="comment">// Axios configuré pour ajouter automatiquement le JWT à chaque requête</span>
+<span class="keyword">const</span> api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL  <span class="comment">// = http://localhost:3001</span>
+});
+
+api.interceptors.request.use(config => {
+  <span class="keyword">const</span> token = localStorage.getItem(<span class="string">'token'</span>);
+  <span class="keyword">if</span> (token) config.headers.Authorization = <span class="string">`Bearer ${token}`</span>;
+  <span class="keyword">return</span> config;
+});</code></pre>
+
+<h3>7.3 Authentification — lib/auth.ts</h3>
+<pre><code><span class="comment">// Sauvegarder les infos après connexion</span>
+<span class="keyword">export const</span> saveAuth = (token: string, user: User) => {
+  localStorage.setItem(<span class="string">'token'</span>, token);
+  localStorage.setItem(<span class="string">'user'</span>, JSON.stringify(user));
+};
+
+<span class="comment">// Lire l'utilisateur connecté depuis localStorage</span>
+<span class="keyword">export const</span> getUser = (): User | null => {
+  <span class="keyword">const</span> raw = localStorage.getItem(<span class="string">'user'</span>);
+  <span class="keyword">return</span> raw ? JSON.parse(raw) : null;
+};</code></pre>
+
+<h3>7.4 Dashboard — Logique des actions de réservation</h3>
+<pre><code><span class="comment">// Fonction appelée quand le PROVIDER clique Confirmer/Refuser/Terminer</span>
+<span class="keyword">const</span> updateBookingStatus = async (bookingId: number, status: string) => {
+  <span class="keyword">try</span> {
+    <span class="keyword">await</span> api.put(<span class="string">`/api/bookings/${bookingId}/status`</span>, { status });
+    toast.success(status === <span class="string">'CONFIRMED'</span> ? <span class="string">'Réservation confirmée !'</span> : <span class="string">'...'</span>);
+    loadDashboard();   <span class="comment">// Recharger les données après mise à jour</span>
+  } <span class="keyword">catch</span> {
+    toast.error(<span class="string">'Erreur lors de la mise à jour'</span>);
+  }
+};</code></pre>
+
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  8. FLUX COMPLETS                                         -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<h2>8. Flux complets — Exemples de bout en bout</h2>
+
+<h3>8.1 Flux de connexion</h3>
+<pre><code><span class="comment">// 1. Frontend → Middleware</span>
+POST http://localhost:3001/api/auth/login
+Body: { email: "user@test.mg", password: "MonMotDePasse" }
+
+<span class="comment">// 2. Middleware → Spring Boot (avec validation)</span>
+POST http://backend-api:8080/api/v1/auth/login
+
+<span class="comment">// 3. Spring Boot → Vérifie BCrypt(password) == hash en BDD</span>
+<span class="comment">// 4. Spring Boot → Génère JWT Spring → renvoie à Middleware</span>
+<span class="comment">// 5. Middleware → Génère JWT Middleware → renvoie au Frontend</span>
+<span class="comment">// 6. Frontend → Stocke dans localStorage → Redirige vers /dashboard</span></code></pre>
+
+<h3>8.2 Flux de création de service</h3>
+<pre><code><span class="comment">// 1. Frontend (PROVIDER) → Middleware</span>
+POST /api/services  +  Authorization: Bearer &lt;jwt-middleware&gt;
+Body: { title, description, category, price, deliveryDays, imageUrl }
+
+<span class="comment">// 2. Middleware → Vérifie JWT → Vérifie rôle = PROVIDER</span>
+<span class="comment">// 3. Middleware → Spring Boot</span>
+POST http://backend-api:8080/api/v1/services  +  Authorization: Bearer &lt;jwt-spring&gt;
+
+<span class="comment">// 4. Spring Boot ServiceOfferService.java :</span>
+offer.setIsActive(true);           <span class="comment">// Force car @Builder ignore les valeurs par défaut</span>
+offer.setAverageRating(0.0);
+offer.setProvider(currentUser);
+serviceOfferRepository.save(offer); <span class="comment">// → INSERT INTO service_offers ...</span>
+
+<span class="comment">// 5. Retour JSON → Middleware → Frontend → Toast "Service créé !"</span></code></pre>
+
+<h3>8.3 Flux de réservation</h3>
+<pre><code><span class="comment">// 1. CLIENT clique "Réserver" sur /services/42</span>
+POST /api/bookings
+Body: { serviceId: 42, clientNote: "Message au freelance" }
+
+<span class="comment">// 2. Spring Boot crée la réservation :</span>
+booking.setStatus(Status.PENDING);   <span class="comment">// En attente</span>
+bookingRepository.save(booking);     <span class="comment">// → INSERT INTO bookings ...</span>
+
+<span class="comment">// 3. PROVIDER voit dans Dashboard → onglet "Reçues" → Status: PENDING</span>
+<span class="comment">// 4. PROVIDER clique "Confirmer" :</span>
+PUT /api/bookings/1/status
+Body: { status: "CONFIRMED" }
+
+<span class="comment">// 5. PROVIDER clique "Terminer" :</span>
+PUT /api/bookings/1/status
+Body: { status: "COMPLETED" }</span></code></pre>
+
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  9. PROBLÈMES TECHNIQUES RÉSOLUS                         -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<h2>9. Problèmes techniques rencontrés et solutions</h2>
+
+<table>
+  <tr><th>Problème</th><th>Cause</th><th>Solution</th></tr>
+  <tr>
+    <td>StackOverflowError — "Infinite recursion"</td>
+    <td>Jackson sérialisait User → services → ServiceOffer.provider → User → …</td>
+    <td><span class="inline-code">@JsonIgnore</span> sur <code>User.services</code></td>
+  </tr>
+  <tr>
+    <td>ByteBuddyInterceptor — "Type definition error"</td>
+    <td>Hibernate crée des proxy objects pour le Lazy Loading que Jackson ne sait pas sérialiser</td>
+    <td><span class="inline-code">@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})</span> sur chaque @Entity</td>
+  </tr>
+  <tr>
+    <td>429 Too Many Requests</td>
+    <td>Fenêtre rate limit de 15 min dépassée lors des tests</td>
+    <td><code>RATE_LIMIT_WINDOW_MS=60000</code> (1 minute)</td>
+  </tr>
+  <tr>
+    <td>isActive = null en base de données</td>
+    <td><code>@Builder</code> Lombok ignore les valeurs par défaut des champs</td>
+    <td>Setter explicite : <code>offer.setIsActive(true);</code> dans le service layer</td>
+  </tr>
+  <tr>
+    <td>IMAGE trop longue → erreur 400</td>
+    <td><code>imageUrl VARCHAR(255)</code> trop court pour base64</td>
+    <td>Colonne <code>TEXT</code> + compression canvas (400×300, JPEG 70%)</td>
+  </tr>
+  <tr>
+    <td>Docker CACHED — fix Java ignoré</td>
+    <td>Docker utilise le cache de build même si le code change</td>
+    <td><code>docker-compose build --no-cache backend-api</code></td>
+  </tr>
+</table>
+
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  10. ANNOTATIONS ET LIBRAIRIES CLÉS                      -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<h2>10. Annotations et librairies clés</h2>
+
+<h3>Spring Boot (Java)</h3>
+<table>
+  <tr><th>Annotation / Librairie</th><th>Rôle</th></tr>
+  <tr><td><code>@Entity</code></td><td>Marque la classe comme table de base de données</td></tr>
+  <tr><td><code>@ManyToOne / @OneToMany</code></td><td>Définit les relations entre tables</td></tr>
+  <tr><td><code>@JsonIgnore</code></td><td>Exclut un champ de la sérialisation JSON</td></tr>
+  <tr><td><code>@JsonIgnoreProperties</code></td><td>Ignore des propriétés spécifiques lors de la sérialisation</td></tr>
+  <tr><td><code>@Builder (Lombok)</code></td><td>Génère le patron de conception Builder pour créer des objets</td></tr>
+  <tr><td><code>@PreAuthorize</code></td><td>Sécurise un endpoint selon le rôle de l'utilisateur</td></tr>
+  <tr><td><code>JpaRepository</code></td><td>Interface Spring Data JPA — génère automatiquement les requêtes SQL</td></tr>
+  <tr><td><code>BCryptPasswordEncoder</code></td><td>Chiffrement sécurisé des mots de passe (hash irréversible)</td></tr>
+</table>
+
+<h3>Node.js Express (JavaScript)</h3>
+<table>
+  <tr><th>Librairie</th><th>Rôle</th></tr>
+  <tr><td><code>express</code></td><td>Framework web HTTP pour Node.js</td></tr>
+  <tr><td><code>jsonwebtoken</code></td><td>Génération et vérification des JWT</td></tr>
+  <tr><td><code>helmet</code></td><td>Sécurité HTTP (headers de protection)</td></tr>
+  <tr><td><code>express-rate-limit</code></td><td>Limite le nombre de requêtes par IP</td></tr>
+  <tr><td><code>express-validator</code></td><td>Validation des données entrantes</td></tr>
+  <tr><td><code>axios</code></td><td>Client HTTP pour appeler Spring Boot</td></tr>
+</table>
+
+<h3>Frontend Next.js (TypeScript)</h3>
+<table>
+  <tr><th>Librairie</th><th>Rôle</th></tr>
+  <tr><td><code>next/navigation (useRouter)</code></td><td>Navigation programmatique entre pages</td></tr>
+  <tr><td><code>axios</code></td><td>Client HTTP configuré avec JWT automatique</td></tr>
+  <tr><td><code>react-hot-toast</code></td><td>Notifications visuelles (succès/erreur)</td></tr>
+  <tr><td><code>react-icons</code></td><td>Icônes SVG pour l'interface</td></tr>
+  <tr><td><code>tailwind css</code></td><td>Framework CSS utilitaire pour le style</td></tr>
+</table>
+
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  11. COMMANDES ESSENTIELLES                               -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<h2>11. Commandes essentielles</h2>
+
+<table>
+  <tr><th>Commande</th><th>Description</th></tr>
+  <tr><td><code>docker-compose up --build</code></td><td>Premier lancement — build et démarrage des 4 containers</td></tr>
+  <tr><td><code>docker-compose up</code></td><td>Relancer le projet (containers déjà buildés)</td></tr>
+  <tr><td><code>docker-compose down</code></td><td>Arrêter les containers (données conservées)</td></tr>
+  <tr><td><code>docker-compose down -v</code></td><td>⚠️ Arrêter ET supprimer toutes les données</td></tr>
+  <tr><td><code>docker-compose build --no-cache backend-api</code></td><td>Rebuild du backend sans cache Docker</td></tr>
+  <tr><td><code>docker-compose up -d --force-recreate frontend</code></td><td>Redémarre le frontend avec la nouvelle image</td></tr>
+  <tr><td><code>docker-compose logs backend-api</code></td><td>Voir les logs du backend Spring Boot</td></tr>
+  <tr><td><code>docker-compose ps</code></td><td>État de tous les containers</td></tr>
+</table>
+
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  FOOTER                                                   -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #e2e8f0; text-align: center; color: #888; font-size: 11px;">
+  <strong>TalantyMG</strong> — Marketplace Freelance Madagascar<br/>
+  ESMIA Madagascar — Projet Agile Scrum<br/>
+  Équipe : Bayane (Bayane-max219) &amp; James Maillard
+</div>
+
+</body>
+</html>
