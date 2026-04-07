@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -58,6 +59,7 @@ public class ServiceOfferService {
         return serviceRepo.save(existing);
     }
 
+    @Transactional
     public void delete(Long id) {
         ServiceOffer offer = getById(id);
         offer.setIsActive(false);
@@ -68,7 +70,7 @@ public class ServiceOfferService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User provider = userRepo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Provider non trouvé"));
-        return serviceRepo.findByProvider(provider);
+        return serviceRepo.findByProviderAndIsActiveTrue(provider);
     }
 
     public long countActive() {

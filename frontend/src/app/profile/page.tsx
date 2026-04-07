@@ -8,10 +8,11 @@ import { getUser } from '@/lib/auth';
 
 export default function ProfilePage() {
   const router = useRouter();
-  const user = getUser();
+  const [user] = useState(() => getUser());
 
   const [myServices, setMyServices] = useState<ServiceOffer[]>([]);
   const [myBookings, setMyBookings] = useState<Booking[]>([]);
+  const [receivedBookings, setReceivedBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'services' | 'bookings'>('services');
 
@@ -30,10 +31,15 @@ export default function ProfilePage() {
           .then(res => setMyServices(Array.isArray(res.data) ? res.data : []))
           .catch(() => {})
       );
+      fetches.push(
+        api.get('/api/bookings/provider')
+          .then(res => setReceivedBookings(Array.isArray(res.data) ? res.data : []))
+          .catch(() => {})
+      );
     }
 
     Promise.all(fetches).finally(() => setLoading(false));
-  }, [user, router]);
+  }, []);
 
   const handleDeleteService = async (serviceId: number) => {
     if (!confirm('Supprimer ce service ?')) return;
@@ -46,6 +52,8 @@ export default function ProfilePage() {
   };
 
   if (!user) return null;
+
+  const isProvider = user.role === 'PROVIDER';
 
   return (
     <main className="min-h-screen pt-24 pb-16">
@@ -70,7 +78,7 @@ export default function ProfilePage() {
                 {user.role === 'PROVIDER' ? '⭐ Freelancer' : user.role === 'ADMIN' ? '🛡 Admin' : '👤 Client'}
               </span>
             </div>
-            {user.role === 'PROVIDER' && (
+            {isProvider && (
               <Link href="/services/create" className="btn-primary hidden sm:inline-flex items-center gap-2">
                 + Nouveau service
               </Link>
@@ -80,32 +88,59 @@ export default function ProfilePage() {
 
         {/* Stats rapides */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="card p-4 text-center">
-            <p className="text-2xl font-bold text-white">{myBookings.length}</p>
-            <p className="text-white/40 text-sm">Réservations</p>
-          </div>
-          <div className="card p-4 text-center">
-            <p className="text-2xl font-bold text-green-400">
-              {myBookings.filter(b => b.status === 'COMPLETED').length}
-            </p>
-            <p className="text-white/40 text-sm">Terminées</p>
-          </div>
-          <div className="card p-4 text-center">
-            <p className="text-2xl font-bold text-yellow-400">
-              {myBookings.filter(b => b.status === 'PENDING').length}
-            </p>
-            <p className="text-white/40 text-sm">En attente</p>
-          </div>
-          {user.role === 'PROVIDER' && (
-            <div className="card p-4 text-center">
-              <p className="text-2xl font-bold text-gold-400">{myServices.length}</p>
-              <p className="text-white/40 text-sm">Services</p>
-            </div>
+          {isProvider ? (
+            <>
+              <div className="card p-4 text-center">
+                <p className="text-2xl font-bold text-white">{receivedBookings.length}</p>
+                <p className="text-white/40 text-sm">Commandes reçues</p>
+              </div>
+              <div className="card p-4 text-center">
+                <p className="text-2xl font-bold text-green-400">
+                  {receivedBookings.filter(b => b.status === 'COMPLETED').length}
+                </p>
+                <p className="text-white/40 text-sm">Terminées</p>
+              </div>
+              <div className="card p-4 text-center">
+                <p className="text-2xl font-bold text-yellow-400">
+                  {receivedBookings.filter(b => b.status === 'PENDING').length}
+                </p>
+                <p className="text-white/40 text-sm">En attente</p>
+              </div>
+              <div className="card p-4 text-center">
+                <p className="text-2xl font-bold text-gold-400">{myServices.length}</p>
+                <p className="text-white/40 text-sm">Services actifs</p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="card p-4 text-center">
+                <p className="text-2xl font-bold text-white">{myBookings.length}</p>
+                <p className="text-white/40 text-sm">Réservations</p>
+              </div>
+              <div className="card p-4 text-center">
+                <p className="text-2xl font-bold text-green-400">
+                  {myBookings.filter(b => b.status === 'COMPLETED').length}
+                </p>
+                <p className="text-white/40 text-sm">Terminées</p>
+              </div>
+              <div className="card p-4 text-center">
+                <p className="text-2xl font-bold text-yellow-400">
+                  {myBookings.filter(b => b.status === 'PENDING').length}
+                </p>
+                <p className="text-white/40 text-sm">En attente</p>
+              </div>
+              <div className="card p-4 text-center">
+                <p className="text-2xl font-bold text-blue-400">
+                  {myBookings.filter(b => b.status === 'CONFIRMED').length}
+                </p>
+                <p className="text-white/40 text-sm">Confirmées</p>
+              </div>
+            </>
           )}
         </div>
 
         {/* Tabs */}
-        {user.role === 'PROVIDER' && (
+        {isProvider && (
           <div className="flex gap-1 bg-dark-800/50 rounded-xl p-1 mb-6 w-fit">
             <button
               onClick={() => setActiveTab('services')}
@@ -137,7 +172,7 @@ export default function ProfilePage() {
         ) : (
 
           /* Services tab */
-          activeTab === 'services' && user.role === 'PROVIDER' ? (
+          activeTab === 'services' && isProvider ? (
             <div>
               {myServices.length === 0 ? (
                 <div className="card p-12 text-center">
@@ -161,10 +196,7 @@ export default function ProfilePage() {
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-gold-400 text-xs">★ {service.averageRating.toFixed(1)}</span>
                           <span className="text-white/30 text-xs">({service.totalReviews} avis)</span>
-                          {service.isActive
-                            ? <span className="badge bg-green-500/20 text-green-400 text-xs">Actif</span>
-                            : <span className="badge bg-red-500/20 text-red-400 text-xs">Inactif</span>
-                          }
+                          <span className="badge bg-green-500/20 text-green-400 text-xs">Actif</span>
                         </div>
                       </div>
                       <div className="flex gap-2 flex-shrink-0">

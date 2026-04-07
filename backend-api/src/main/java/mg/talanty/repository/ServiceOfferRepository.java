@@ -25,5 +25,7 @@ public interface ServiceOfferRepository extends JpaRepository<ServiceOffer, Long
 
     List<ServiceOffer> findByProvider(User provider);
 
+    List<ServiceOffer> findByProviderAndIsActiveTrue(User provider);
+
     long countByIsActiveTrue();
 }
