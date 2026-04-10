@@ -5,6 +5,23 @@
 
 ---
 
+## Aperçu de l'application
+
+| | |
+|:---:|:---:|
+| ![Accueil](screenshoots/01-Accueil.png) | ![Inscription](screenshoots/02-Inscription.png) |
+| **01 — Page d'accueil** | **02 — Inscription** |
+| ![Connexion](screenshoots/03-Connexion.png) | ![Liste des services](screenshoots/04-Liste_Services.png) |
+| **03 — Connexion** | **04 — Liste des services** |
+| ![Profil Freelance](screenshoots/05-Profil_Serviteurs.png) | ![Ajout service](screenshoots/06-Ajout_Services.png) |
+| **05 — Profil Freelance** | **06 — Ajout d'un service** |
+| ![Détail service](screenshoots/07-Détials_Services.png) | ![Services Dev](screenshoots/08-Services_Dev.png) |
+| **07 — Détail d'un service** | **08 — Services Développement** |
+| ![Interface Client](screenshoots/09-Interface_Client.png) | ![Profil Client](screenshoots/10-Profil_Client.png) |
+| **09 — Interface Client** | **10 — Profil Client** |
+
+---
+
 ## Architecture globale
 
 ```
